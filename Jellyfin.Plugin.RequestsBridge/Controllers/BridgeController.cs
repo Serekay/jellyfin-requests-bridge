@@ -12,7 +12,6 @@ public sealed class BridgeController : ControllerBase
 {
     private readonly IHttpClientFactory _httpFactory;
 
-    // Konfiguration wird direkt vom Plugin geladen, damit Änderungen sofort wirksam sind
     private BridgeConfig Config => RequestsBridgePlugin.Instance?.Configuration ?? new BridgeConfig();
 
     public BridgeController(IHttpClientFactory httpClientFactory)
@@ -32,9 +31,26 @@ public sealed class BridgeController : ControllerBase
         var apiKey = Config.JellyseerrApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            return Ok(new { success = false, message = "API-Key nicht konfiguriert", apiKey = "" });
+            return Ok(new { success = false, message = "API-Key not configured", apiKey = "" });
         }
         return Ok(new { success = true, apiKey });
+    }
+
+    // ---------------- Jellyseerr Base Endpoint ----------------
+    /// <summary>
+    /// Gibt die konfigurierte Jellyseerr Basis-URL zurück.
+    /// Nützlich für die Android TV App.
+    /// </summary>
+    [HttpGet]
+    [Route("plugins/requests/apibase")]
+    public IActionResult GetApiBase()
+    {
+        var apiBase = Config.JellyseerrBase;
+        if (string.IsNullOrWhiteSpace(apiBase))
+        {
+            return Ok(new { success = false, message = "Jellyseerr Base URL not configured", apiBase = "" });
+        }
+        return Ok(new { success = true, apiBase });
     }
 
     // ---------------- UI ----------------
