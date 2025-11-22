@@ -13,7 +13,7 @@
         "changelog": "Initial commit",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Serekay/jellyfin-requests-bridge/releases/download/v1.0.0/Jellyfin.Plugin.RequestsBridge.zip",
-        "checksum": "10705b26fedd706339c55f86bb39054d",
+        "checksum": "c94ce109509b9d0d2d3b59fe6206ac3d",
         "timestamp": "2025-11-22T07:22:00Z"
       }
     ]
