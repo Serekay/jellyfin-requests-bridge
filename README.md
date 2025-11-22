@@ -97,7 +97,7 @@ services:
 </details>
 
 <details>
-<summary><h2>🟠 Method 3: Unraid / General Docker (Volume Mapping - Not Recommended)</h2></summary>
+<summary><h2>🟠 Method 3: Volume Mapping (Not Recommended)</h2></summary>
 
 **⚠️ Why is this not recommended?**
 This method copies the static web files to your host. When Jellyfin updates (e.g. version 10.9 to 10.10), your host files remain "old". This causes **Version Mismatches (404 Errors)** and the UI will break until you manually delete and re-copy the files.
