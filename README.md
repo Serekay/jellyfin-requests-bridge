@@ -2,6 +2,8 @@
 
 A Jellyfin plugin that integrates [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) directly into the Jellyfin web interface. Request movies and TV shows without leaving Jellyfin.
 
+#### 📺 With Android TV Support!!
+
 ## Features
 
 - 🎬 **Seamless Integration:** Jellyseerr embedded as an overlay within Jellyfin.
