@@ -137,5 +137,8 @@ namespace Jellyfin.Plugin.RequestsBridge
         public string JellyseerrBase { get; set; } = "http://192.168.178.37:5055";
 
         public string JellyseerrApiKey { get; set; } = string.Empty;
+
+        /// Disable User Data for collections to fix slow loading issues.
+        public bool DisableUserDataOnCollections { get; set; } = false;
     }
 }

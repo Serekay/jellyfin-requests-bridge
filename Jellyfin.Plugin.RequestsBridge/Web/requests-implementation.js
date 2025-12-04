@@ -66,11 +66,13 @@
                 const iframeDoc = iframeWin.document;
                 if (!iframeDoc || !iframeWin) return;
 
-                // 1. iFrame click listener (link fix for Jellyfin links)
+                // 1. iFrame click listener (link fix for Jellyfin links and external links)
                 iframeDoc.addEventListener('click', (e) => {
                     const link = e.target.closest('a');
                     if (!link || !link.href) return;
                     const href = link.href;
+
+                    // Fix Jellyfin internal links
                     if (href.includes('/web/index.html#!/item?id=')) {
                         e.preventDefault(); e.stopPropagation();
                         try {
@@ -82,6 +84,15 @@
                                 window.top.location.hash = `#/details?id=${id}&serverId=${serverId}`;
                             }
                         } catch (parseError) { /* ... */ }
+                        return;
+                    }
+
+                    // Fix external links (TMDb, IMDb, etc.) - prevent target="_blank"
+                    if (link.target === '_blank') {
+                        e.preventDefault(); e.stopPropagation();
+                        // Open in same tab instead of new tab
+                        link.target = '_self';
+                        link.click();
                     }
                 }, true);
 

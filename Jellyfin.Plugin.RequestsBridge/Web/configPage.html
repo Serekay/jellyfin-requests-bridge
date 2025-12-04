@@ -37,6 +37,22 @@
                         </div>
                     </div>
 
+                    <div class="sectionTitleContainer flex align-items-center" style="margin-top: 2em;">
+                        <h2 class="sectionTitle">Performance Settings</h2>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label>
+                            <input is="emby-checkbox" type="checkbox" id="chkDisableUserDataOnCollections" />
+                            <span>Disable User Data on Collections</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">
+                            Enable this to fix slow loading of Collections. This disables watch status and progress indicators
+                            for Collections, which significantly improves loading performance. Based on
+                            <a href="https://github.com/pelluch/jellyfin-plugin-disable-user-data" target="_blank">jellyfin-plugin-disable-user-data</a>.
+                        </div>
+                    </div>
+
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block">
                             <span>Save</span>
@@ -67,6 +83,7 @@
                         .then(function (config) {
                             document.querySelector('#txtJellyseerrBase').value = config.JellyseerrBase || '';
                             document.querySelector('#txtJellyseerrApiKey').value = config.JellyseerrApiKey || '';
+                            document.querySelector('#chkDisableUserDataOnCollections').checked = config.DisableUserDataOnCollections || false;
                             Dashboard.hideLoadingMsg();
                         });
                 });
@@ -79,6 +96,7 @@
                         .then(function (config) {
                             config.JellyseerrBase = document.querySelector('#txtJellyseerrBase').value;
                             config.JellyseerrApiKey = document.querySelector('#txtJellyseerrApiKey').value;
+                            config.DisableUserDataOnCollections = document.querySelector('#chkDisableUserDataOnCollections').checked;
                             ApiClient.updatePluginConfiguration(RequestsBridgeConfig.pluginUniqueId, config)
                                 .then(function () {
                                     Dashboard.processPluginConfigurationUpdateResult();
