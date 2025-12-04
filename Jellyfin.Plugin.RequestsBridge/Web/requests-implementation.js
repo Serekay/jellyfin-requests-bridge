@@ -66,7 +66,20 @@
                 const iframeDoc = iframeWin.document;
                 if (!iframeDoc || !iframeWin) return;
 
-                // 1. iFrame click listener (link fix for Jellyfin links and external links)
+                // Remove all target="_blank" attributes to prevent new tabs on mobile
+                const removeBlankTargets = () => {
+                    const links = iframeDoc.querySelectorAll('a[target="_blank"]');
+                    links.forEach(link => {
+                        link.removeAttribute('target');
+                    });
+                };
+
+                // Run immediately and on DOM changes
+                removeBlankTargets();
+                const observer = new MutationObserver(removeBlankTargets);
+                observer.observe(iframeDoc.body, { childList: true, subtree: true });
+
+                // 1. iFrame click listener (link fix for Jellyfin links)
                 iframeDoc.addEventListener('click', (e) => {
                     const link = e.target.closest('a');
                     if (!link || !link.href) return;
@@ -85,14 +98,6 @@
                             }
                         } catch (parseError) { /* ... */ }
                         return;
-                    }
-
-                    // Fix external links (TMDb, IMDb, etc.) - prevent target="_blank"
-                    if (link.target === '_blank') {
-                        e.preventDefault(); e.stopPropagation();
-                        // Open in same tab instead of new tab
-                        link.target = '_self';
-                        link.click();
                     }
                 }, true);
 
