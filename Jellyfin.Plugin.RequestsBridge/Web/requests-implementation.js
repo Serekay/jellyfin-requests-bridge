@@ -66,20 +66,7 @@
                 const iframeDoc = iframeWin.document;
                 if (!iframeDoc || !iframeWin) return;
 
-                // Remove all target="_blank" attributes to prevent new tabs on mobile
-                const removeBlankTargets = () => {
-                    const links = iframeDoc.querySelectorAll('a[target="_blank"]');
-                    links.forEach(link => {
-                        link.removeAttribute('target');
-                    });
-                };
-
-                // Run immediately and on DOM changes
-                removeBlankTargets();
-                const observer = new MutationObserver(removeBlankTargets);
-                observer.observe(iframeDoc.body, { childList: true, subtree: true });
-
-                // 1. iFrame click listener (link fix for Jellyfin links)
+                // 1. iFrame click listener (link fix for Jellyfin links and external links)
                 iframeDoc.addEventListener('click', (e) => {
                     const link = e.target.closest('a');
                     if (!link || !link.href) return;
@@ -98,6 +85,22 @@
                             }
                         } catch (parseError) { /* ... */ }
                         return;
+                    }
+
+                    // Handle external links (TMDb, IMDb, etc.)
+                    // Check if it's an external link (not same origin as iframe)
+                    try {
+                        const linkUrl = new URL(href);
+                        const iframeUrl = new URL(iframeWin.location.href);
+
+                        // If it's external, open in parent window
+                        if (linkUrl.origin !== iframeUrl.origin) {
+                            e.preventDefault(); e.stopPropagation();
+                            window.top.open(href, '_blank');
+                            return;
+                        }
+                    } catch (urlError) {
+                        // Invalid URL, let it proceed normally
                     }
                 }, true);
 
