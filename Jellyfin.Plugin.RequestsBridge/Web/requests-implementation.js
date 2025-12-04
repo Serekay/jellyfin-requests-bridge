@@ -93,10 +93,42 @@
                         const linkUrl = new URL(href);
                         const iframeUrl = new URL(iframeWin.location.href);
 
-                        // If it's external, open in parent window
+                        // If it's external, open in parent window (browser) or show notification (native app)
                         if (linkUrl.origin !== iframeUrl.origin) {
                             e.preventDefault(); e.stopPropagation();
-                            window.top.open(href, '_blank');
+
+                            // Detect if running in native app (iOS/Android Jellyfin app)
+                            const isNativeApp = navigator.userAgent.includes('Jellyfin') ||
+                                              (navigator.standalone !== undefined) ||
+                                              window.matchMedia('(display-mode: standalone)').matches;
+
+                            if (isNativeApp) {
+                                // Native app: Copy to clipboard and show notification
+                                if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    navigator.clipboard.writeText(href).then(() => {
+                                        // Show Jellyfin toast notification
+                                        if (window.top.require) {
+                                            try {
+                                                const toast = window.top.require(['toast']);
+                                                if (toast) {
+                                                    toast('Link copied to clipboard: ' + href);
+                                                }
+                                            } catch (e) {
+                                                alert('Link copied to clipboard:\n' + href);
+                                            }
+                                        } else {
+                                            alert('Link copied to clipboard:\n' + href);
+                                        }
+                                    }).catch(() => {
+                                        alert('External link:\n' + href);
+                                    });
+                                } else {
+                                    alert('External link:\n' + href);
+                                }
+                            } else {
+                                // Browser: Open in new tab
+                                window.top.open(href, '_blank');
+                            }
                             return;
                         }
                     } catch (urlError) {
