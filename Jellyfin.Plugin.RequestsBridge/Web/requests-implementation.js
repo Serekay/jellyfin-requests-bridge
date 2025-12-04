@@ -98,9 +98,12 @@
                             e.preventDefault(); e.stopPropagation();
 
                             // Detect if running in native app (iOS/Android Jellyfin app)
-                            const isNativeApp = navigator.userAgent.includes('Jellyfin') ||
-                                              (navigator.standalone !== undefined) ||
-                                              window.matchMedia('(display-mode: standalone)').matches;
+                            // Check for native app indicators in user agent
+                            const ua = navigator.userAgent;
+                            const isNativeApp = ua.includes('Jellyfin iOS') ||
+                                              ua.includes('Jellyfin Mobile') ||
+                                              ua.includes('Jellyfin Android') ||
+                                              (ua.includes('Jellyfin') && !ua.includes('Jellyfin Web'));
 
                             if (isNativeApp) {
                                 // Native app: Copy to clipboard and show notification
