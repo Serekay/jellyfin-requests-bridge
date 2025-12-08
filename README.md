@@ -1,200 +1,108 @@
 # Jellyfin Requests Bridge
 
-A Jellyfin plugin that integrates [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) directly into the Jellyfin web interface. Request movies and TV shows without leaving Jellyfin.
-
-#### 📺 With Android TV Support!!
-- Just install and configure this Plugin before you install my Android TV Jellyfin App. 
+Jellyfin plugin that integrates [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) directly into the Jellyfin web UI. Request movies and TV shows without leaving Jellyfin. Android TV is supported via my fork of the Jellyfin Android TV app.
 
 ## Features
+- Seamless integration: Jellyseerr overlay inside Jellyfin
+- Discover button in navigation bar and sidebar (desktop & mobile)
+- Android TV support via [JellyArc-Jellyseerr-AndroidTv](https://github.com/Serekay/jellyarc-jellyserr-androidtv)
+- Auto-inject: adds the client script into `index.html` at startup
+- Optional Tailscale Jellyseerr URL endpoint for remote access
 
-- 🎬 **Seamless Integration:** Jellyseerr embedded as an overlay within Jellyfin.
-- 🧭 **Discovery:** "Discover" button in the navigation bar and sidebar (Desktop & Mobile).
-- 📺 **Android TV Support:** Full integration via my fork [JellyArc-Jellyseerr-AndroidTv](https://github.com/Serekay/jellyarc-jellyserr-androidtv) (original from https://github.com/jellyfin/jellyfin-androidtv).
-- ⚡ **Auto-Inject:** Automatic UI injection on plugin startup.
-
----
-
-## 🚀 Installation Guide
-
-The plugin needs to modify Jellyfin's `index.html` to inject the "Discover" button. In Docker, the web directory is read-only by default. **Choose your installation method below.**
+## Installation Guide
+The plugin injects a script tag into Jellyfin’s `index.html`. Many Docker images mount the web directory read-only, so write access is required. Choose one method:
 
 <details open>
-<summary><h2>🟢 Method 1: Unraid (Recommended)</h2></summary>
+<summary>Method 1: Unraid (recommended)</summary>
 
-This method uses the **User Scripts** plugin to grant write permissions at startup.
-<br>
-**✅ Pros:** Updates work automatically without breaking the UI (No 404 errors!). No file copying required.
+Use the **User Scripts** plugin to grant write permissions at startup. Without this, the plugin cannot inject its script on Unraid containers.
 
-### Prerequisites
-1. Install the **"User Scripts"** plugin from the Unraid "Apps" tab.
-
-### Step-by-Step
-
-1. **Find your Container Name:**
-   Open the Unraid Terminal (top right) and type:
-   ```bash
-   docker ps --format "{{.Names}}" | grep jelly
-   ```
-   *Note the name (usually `binhex-jellyfin` or `jellyfin`).*
-
-2. **Create the Script:**
-   - Go to **Settings** → **User Scripts** in Unraid.
-   - Click **"Add New Script"**.
-   - Name it: `Jellyfin-Web-Permissions`.
-   - Click the **Gear Icon** next to the new script → **Edit Script**.
-
-3. **Paste the Code:**
-   Copy the code below. **Replace `binhex-jellyfin`** with the name you found in Step 1 if it differs!
-
-   ```bash
-   #!/bin/bash
-   # Wait for Jellyfin to fully start (adjust sleep if needed)
-   sleep 15
-   
-   # Grant write permissions to the web directory inside the container
-   # Replace 'binhex-jellyfin' with your actual container name
-   docker exec -u 0 binhex-jellyfin chmod -R 777 /usr/share/jellyfin/web
-   
-   echo "Permissions granted for Jellyfin Requests Bridge"
-   ```
-
-4. **Set Schedule:**
-   - Click **"Save Changes"**.
-   - Change the schedule dropdown from "Don't Run" to **"At Startup of Array"**.
-   - **Important:** Click **"Run Script"** once manually to apply it right now.
-
-5. **Proceed to "Step 2: Install the Plugin" below.**
+1) Install the **User Scripts** plugin from the Unraid “Apps” tab.  
+2) Find your Jellyfin container name:
+```bash
+docker ps --format "{{.Names}}" | grep jelly
+```
+3) Create a script in **Settings → User Scripts → Add New Script**, name it `Jellyfin-Web-Permissions`, edit it and paste (replace container name if needed):
+```bash
+#!/bin/bash
+sleep 15
+docker exec -u 0 binhex-jellyfin chmod -R 777 /usr/share/jellyfin/web
+echo "Permissions granted for Jellyfin Requests Bridge"
+```
+4) Save, set schedule to **At Startup of Array**, and run once manually.  
+5) Install the plugin (see below).
 
 </details>
 
 <details>
-<summary><h2>🔵 Method 2: Docker Compose</h2></summary>
+<summary>Method 2: Docker Compose (volume mapping)</summary>
 
-For standard Docker installations, volume mapping is the most reliable method.
+Copy the Jellyfin web assets to the host and mount them read/write.
 
-**⚠️ Warning:** When updating the Jellyfin image, you must re-run the setup commands to update the web files, otherwise you will get **404 Not Found** errors.
-
-**1. Prepare the files (Run on Host):**
+1) Prepare files (run on host):
 ```bash
-# Create directory
 mkdir -p ./custom-web
-
-# Copy current web files from the image to your host
-# NOTE: We copy EVERYTHING, not just index.html, to ensure consistency
 docker run --rm -v "$(pwd)/custom-web:/out" jellyfin/jellyfin cp -a /usr/share/jellyfin/web/. /out/
 ```
-
-**2. Update `docker-compose.yml`:**
+2) Update `docker-compose.yml`:
 ```yaml
 services:
   jellyfin:
     image: jellyfin/jellyfin
     volumes:
       - ./config:/config
-      - ./custom-web:/usr/share/jellyfin/web:rw  # <--- Add this line
+      - ./custom-web:/usr/share/jellyfin/web:rw
 ```
+3) `docker-compose up -d`
 
-**3. Start Container:**
-`docker-compose up -d`
+Note: after Jellyfin image updates you must refresh the copied web files or you may get 404s.
 
 </details>
 
 <details>
-<summary><h2>🟠 Method 3: Volume Mapping (Not Recommended)</h2></summary>
+<summary>Method 3: Direct volume mapping (not recommended)</summary>
 
-**⚠️ Why is this not recommended?**
-This method copies the static web files to your host. When Jellyfin updates (e.g. version 10.9 to 10.10), your host files remain "old". This causes **Version Mismatches (404 Errors)** and the UI will break until you manually delete and re-copy the files.
+Mount `/usr/share/jellyfin/web` read/write from the host. Risk: stale files after Jellyfin upgrades unless you recopy everything.
 
-**If you still want to use this method:**
-
-1. **Stop the Container.**
-
-2. **Clean old files & Copy new ones:**
-   Open Unraid Terminal:
-   ```bash
-   # Create directory
-   mkdir -p /mnt/user/appdata/jellyfin/custom-web
-   
-   # CLEAR directory (Critical for updates!)
-   rm -rf /mnt/user/appdata/jellyfin/custom-web/*
-   
-   # Copy ALL web files (Replace binhex-jellyfin with your container name)
-   docker cp binhex-jellyfin:/usr/share/jellyfin/web/. /mnt/user/appdata/jellyfin/custom-web/
-   ```
-
-3. **Add Path Mapping in Unraid:**
-   - **Config Type:** Path
-   - **Container Path:** `/usr/share/jellyfin/web`
-   - **Host Path:** `/mnt/user/appdata/jellyfin/custom-web`
-   - **Access Mode:** Read/Write
-
-4. **Start Container.**
+Example (Unraid):
+```bash
+mkdir -p /mnt/user/appdata/jellyfin/custom-web
+rm -rf /mnt/user/appdata/jellyfin/custom-web/*
+docker cp binhex-jellyfin:/usr/share/jellyfin/web/. /mnt/user/appdata/jellyfin/custom-web/
+```
+Then map container path `/usr/share/jellyfin/web` to that host path with RW access.
 
 </details>
 
----
+## Step 2: Install the Plugin
+1) Jellyfin Dashboard → Plugins → Repositories.  
+2) Add repository URL:
+```
+https://raw.githubusercontent.com/Serekay/jellyfin-requests-bridge/master/manifest.json
+```
+3) Open Catalog, install “Requests Bridge”.  
+4) Restart Jellyfin.  
+5) On Unraid, if the button is missing, run the User Script once and refresh.
 
-## 📦 Step 2: Install the Plugin
+## Step 3: Configuration
+1) Dashboard → Plugins → Requests Bridge.  
+2) Jellyseerr URL: e.g. `http://192.168.1.100:5055`.  
+3) Tailscale Jellyseerr URL (optional): e.g. `http://100.x.y.z:5055` for remote devices.  
+4) Jellyseerr API Key: from Jellyseerr → Settings → General.  
+5) Save.
 
-1. Open **Jellyfin Dashboard** → **Plugins** → **Repositories**.
-2. Add the repository URL:
-   ```text
-   [https://raw.githubusercontent.com/Serekay/jellyfin-requests-bridge/master/manifest.json](https://raw.githubusercontent.com/Serekay/jellyfin-requests-bridge/master/manifest.json)
-   ```
-3. Go to **Catalog**, find **"Requests Bridge"** and install it.
-4. **Restart Jellyfin.**
-5. *Unraid Users:* If the button doesn't appear immediately, run your "User Script" manually once more and refresh the page.
-
----
-
-## ⚙️ Step 3: Configuration
-
-1. Go to **Dashboard** → **Plugins** → **Requests Bridge**.
-2. **Jellyseerr URL:** Enter the full URL (e.g., `http://192.168.1.100:5055`).
-3. **Jellyseerr API Key:** Found in Jellyseerr → Settings → General.
-4. Click **Save**.
-
-The "Discover" button should now appear in your sidebar!
-
----
-
-## 🛠 Troubleshooting
-
-### 🔴 I get "404 Not Found" errors after a Jellyfin Update
-**Cause:** You are using Method 2 or 3 (Volume Mapping) and your mapped files are outdated.
-**Fix:**
-1. Stop the container.
-2. Delete the contents of your local `custom-web` folder.
-3. Remove the Volume Mapping temporarily.
-4. Start container → Copy new files via `docker cp` → Add mapping back.
-5. **Better Fix:** Switch to **Method 1 (User Scripts)** to avoid this issue in the future.
-
-### ⚪ The "Discover" button is missing
-1. Check the logs: `Dashboard` → `Logs`. Look for "RequestsBridge".
-2. If it says "Access Denied" or "Read-only file system":
-   - **Unraid:** Run your User Script manually and refresh.
-   - **Docker:** Check if your volume mapping has `:rw` (Read/Write).
-3. Clear your Browser Cache (`Ctrl + F5` or `Ctrl + Shift + R`).
-
-### 🟠 Plugin installation fails or disappears after restart
-This happens if the plugin files got corrupted.
-**Fix:**
-1. Stop Jellyfin.
-2. Delete the plugin folder manually:
-   - **Unraid:** `/mnt/user/appdata/jellyfin/data/plugins/Requests Bridge`
-   - **Linux:** `/var/lib/jellyfin/plugins/RequestsBridge`
-3. Start Jellyfin and reinstall from Catalog.
-
----
+## Troubleshooting
+- **404 after Jellyfin update:** If you mapped `/usr/share/jellyfin/web`, recopy fresh web files or re-run the volume-setup steps. Method 1 avoids this.  
+- **Discover button missing:** Check logs for “RequestsBridge”; ensure web path is writable (User Script/volume RW), then clear browser cache.  
+- **Plugin install fails or vanishes:** Stop Jellyfin, delete plugin folder (`/var/lib/jellyfin/plugins/RequestsBridge` or Unraid equivalent), restart, reinstall.
 
 ## API Endpoints
-
 | Endpoint | Description |
 |----------|-------------|
-| `GET /plugins/requests/apibase` | Returns the configured Jellyseerr URL |
-| `GET /plugins/requests/apikey` | Returns the configured API key |
-| `GET /plugins/requests/proxy/*` | Proxy requests to Jellyseerr |
+| `GET /plugins/requests/apibase` | Configured Jellyseerr URL |
+| `GET /plugins/requests/tailscale/apibase` | Configured Tailscale Jellyseerr URL (optional) |
+| `GET /plugins/requests/apikey` | Configured API key |
+| `GET /plugins/requests/proxy/*` | Proxy to Jellyseerr |
 
 ## License
-
 MIT
