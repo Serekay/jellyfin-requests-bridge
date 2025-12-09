@@ -53,6 +53,23 @@ public sealed class BridgeController : ControllerBase
         return Ok(new { success = true, apiBase });
     }
 
+    // ---------------- Jellyfin Base Endpoint ----------------
+    /// <summary>
+    /// Gibt die konfigurierte lokale Jellyfin Basis-URL zurück.
+    /// Nützlich für die Android TV App.
+    /// </summary>
+    [HttpGet]
+    [Route("plugins/requests/jellyfinbase")]
+    public IActionResult GetJellyfinBase()
+    {
+        var jellyfinBase = Config.JellyfinBase;
+        if (string.IsNullOrWhiteSpace(jellyfinBase))
+        {
+            return Ok(new { success = false, message = "Jellyfin Base URL not configured", jellyfinBase = "" });
+        }
+        return Ok(new { success = true, jellyfinBase });
+    }
+
     // ---------------- Jellyseerr Base Endpoint (Tailscale) ----------------
     /// <summary>
     /// Gibt die konfigurierte Jellyseerr Basis-URL für Tailscale zurück.

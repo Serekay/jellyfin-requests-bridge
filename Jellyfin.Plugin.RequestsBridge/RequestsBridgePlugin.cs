@@ -136,6 +136,8 @@ namespace Jellyfin.Plugin.RequestsBridge
     {
         public string JellyseerrBase { get; set; } = "http://192.168.178.37:5055";
 
+        public string JellyfinBase { get; set; } = string.Empty;
+
         public string TailscaleJellyseerrBase { get; set; } = string.Empty;
 
         public string TailscaleJellyfinBase { get; set; } = string.Empty;

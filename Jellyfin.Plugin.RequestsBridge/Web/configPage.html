@@ -41,13 +41,25 @@
                         </div>
                     </div>
 
-                    <!-- Tailscale Configuration -->
+                    <!-- VPN Configuration -->
                     <div class="sectionTitleContainer flex align-items-center" style="margin-top: 2em;">
-                        <h2 class="sectionTitle">Tailscale Configuration (Optional)</h2>
+                        <h2 class="sectionTitle">VPN / Remote Access Configuration (Optional)</h2>
                     </div>
                     <div class="fieldDescription" style="margin-bottom: 1.5em;">
-                        Configure Tailscale URLs for remote access. Leave empty if you don't use Tailscale.
+                        Configure URLs for remote access via VPN (e.g., Tailscale). Leave empty if you don't use VPN.
                         These URLs are used by the Android TV app to connect when you're outside your local network.
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtJellyfinBase">
+                            Local Jellyfin URL
+                        </label>
+                        <input is="emby-input" type="text" id="txtJellyfinBase"
+                               placeholder="http://192.168.1.100:8096" />
+                        <div class="fieldDescription">
+                            Your local Jellyfin URL. Example: <code>http://192.168.1.100:8096</code>
+                            <br>Available via API: <code>GET /plugins/requests/jellyfinbase</code>
+                        </div>
                     </div>
 
                     <div class="inputContainer">
@@ -113,11 +125,12 @@
                         <strong>Local Network Endpoints:</strong>
                         <ul style="margin: 0.5em 0 0 1.5em;">
                             <li><code>GET /plugins/requests/apibase</code> - Returns Jellyseerr URL</li>
+                            <li><code>GET /plugins/requests/jellyfinbase</code> - Returns local Jellyfin URL</li>
                             <li><code>GET /plugins/requests/apikey</code> - Returns Jellyseerr API Key</li>
                         </ul>
                     </div>
                     <div style="margin-bottom: 1em;">
-                        <strong>Tailscale Endpoints:</strong>
+                        <strong>Tailscale / VPN Endpoints:</strong>
                         <ul style="margin: 0.5em 0 0 1.5em;">
                             <li><code>GET /plugins/requests/tailscale/apibase</code> - Returns Tailscale Jellyseerr URL</li>
                             <li><code>GET /plugins/requests/tailscale/jellyfinbase</code> - Returns Tailscale Jellyfin URL</li>
@@ -141,6 +154,7 @@
                     ApiClient.getPluginConfiguration(RequestsBridgeConfig.pluginUniqueId)
                         .then(function (config) {
                             document.querySelector('#txtJellyseerrBase').value = config.JellyseerrBase || '';
+                            document.querySelector('#txtJellyfinBase').value = config.JellyfinBase || '';
                             document.querySelector('#txtTailscaleJellyseerrBase').value = config.TailscaleJellyseerrBase || '';
                             document.querySelector('#txtTailscaleJellyfinBase').value = config.TailscaleJellyfinBase || '';
                             document.querySelector('#txtJellyseerrApiKey').value = config.JellyseerrApiKey || '';
@@ -156,6 +170,7 @@
                     ApiClient.getPluginConfiguration(RequestsBridgeConfig.pluginUniqueId)
                         .then(function (config) {
                             config.JellyseerrBase = document.querySelector('#txtJellyseerrBase').value;
+                            config.JellyfinBase = document.querySelector('#txtJellyfinBase').value;
                             config.TailscaleJellyseerrBase = document.querySelector('#txtTailscaleJellyseerrBase').value;
                             config.TailscaleJellyfinBase = document.querySelector('#txtTailscaleJellyfinBase').value;
                             config.JellyseerrApiKey = document.querySelector('#txtJellyseerrApiKey').value;
