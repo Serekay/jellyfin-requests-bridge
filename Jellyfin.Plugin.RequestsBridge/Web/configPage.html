@@ -38,6 +38,18 @@
                     </div>
 
                     <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtTailscaleJellyfinBase">
+                            Tailscale Jellyfin URL
+                        </label>
+                        <input is="emby-input" type="text" id="txtTailscaleJellyfinBase"
+                               placeholder="100.99.17.85:8096" />
+                        <div class="fieldDescription">
+                            Optional: Your Jellyfin URL reachable via Tailscale for remote devices (e.g., 100.99.17.85:8096).
+                            This is returned via <code>/plugins/requests/tailscale/jellyfinbase</code>.
+                        </div>
+                    </div>
+
+                    <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtJellyseerrApiKey">
                             Jellyseerr API Key
                         </label>
@@ -78,8 +90,9 @@
                 <div class="fieldDescription">
                     <p><strong>Get Jellyseerr Base URL:</strong> <code>GET /plugins/requests/apibase</code></p>
                     <p><strong>Get Tailscale Jellyseerr URL:</strong> <code>GET /plugins/requests/tailscale/apibase</code></p>
+                    <p><strong>Get Tailscale Jellyfin URL:</strong> <code>GET /plugins/requests/tailscale/jellyfinbase</code></p>
                     <p><strong>Get API Key:</strong> <code>GET /plugins/requests/apikey</code></p>
-                    <p>This endpoint returns the configured Jellyseerr URL and API key. Useful for Android TV app.</p>
+                    <p>These endpoints return the configured URLs and API key. Useful for Android TV app.</p>
                 </div>
             </div>
         </div>
@@ -96,6 +109,7 @@
                         .then(function (config) {
                             document.querySelector('#txtJellyseerrBase').value = config.JellyseerrBase || '';
                             document.querySelector('#txtTailscaleJellyseerrBase').value = config.TailscaleJellyseerrBase || '';
+                            document.querySelector('#txtTailscaleJellyfinBase').value = config.TailscaleJellyfinBase || '';
                             document.querySelector('#txtJellyseerrApiKey').value = config.JellyseerrApiKey || '';
                             document.querySelector('#chkDisableUserDataOnCollections').checked = config.DisableUserDataOnCollections || false;
                             Dashboard.hideLoadingMsg();
@@ -110,6 +124,7 @@
                         .then(function (config) {
                             config.JellyseerrBase = document.querySelector('#txtJellyseerrBase').value;
                             config.TailscaleJellyseerrBase = document.querySelector('#txtTailscaleJellyseerrBase').value;
+                            config.TailscaleJellyfinBase = document.querySelector('#txtTailscaleJellyfinBase').value;
                             config.JellyseerrApiKey = document.querySelector('#txtJellyseerrApiKey').value;
                             config.DisableUserDataOnCollections = document.querySelector('#chkDisableUserDataOnCollections').checked;
                             ApiClient.updatePluginConfiguration(RequestsBridgeConfig.pluginUniqueId, config)

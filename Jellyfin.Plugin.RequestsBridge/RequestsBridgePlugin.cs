@@ -138,6 +138,8 @@ namespace Jellyfin.Plugin.RequestsBridge
 
         public string TailscaleJellyseerrBase { get; set; } = string.Empty;
 
+        public string TailscaleJellyfinBase { get; set; } = string.Empty;
+
         public string JellyseerrApiKey { get; set; } = string.Empty;
 
         /// Disable User Data for collections to fix slow loading issues.
