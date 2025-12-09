@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Serekay/jellyfin-requests-bridge/master/Jellyfin.Plugin.RequestsBridge/Web/thumb.png",
     "versions": [
       {
+        "version": "1.3.1.0",
+        "changelog": "Improved configuration page with better categorization and clearer descriptions",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Serekay/jellyfin-requests-bridge/releases/download/v1.3.1/Jellyfin.Plugin.RequestsBridge.zip",
+        "checksum": "7df5b1e27257675624e4df33352a04eb",
+        "timestamp": "2025-12-09T05:00:00Z"
+      },
+      {
         "version": "1.3.0.0",
         "changelog": "Improved configuration page with better categorization and clearer descriptions",
         "targetAbi": "10.11.0.0",
