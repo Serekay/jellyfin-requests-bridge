@@ -10,19 +10,44 @@
         <div data-role="content">
             <div class="content-primary">
                 <form id="RequestsBridgeConfigForm">
+
+                    <!-- Basic Configuration -->
                     <div class="sectionTitleContainer flex align-items-center">
-                        <h2 class="sectionTitle">Requests Bridge Settings</h2>
+                        <h2 class="sectionTitle">Basic Configuration</h2>
+                    </div>
+                    <div class="fieldDescription" style="margin-bottom: 1.5em;">
+                        Configure your Jellyseerr instance connection. This is required for the plugin to work.
                     </div>
 
                     <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtJellyseerrBase">
-                            Jellyseerr URL
+                            Jellyseerr URL (Required)
                         </label>
                         <input is="emby-input" type="text" id="txtJellyseerrBase"
-                               placeholder="http://192.168.1.100:5055" />
+                               placeholder="http://192.168.1.100:5055" required />
                         <div class="fieldDescription">
-                            The base URL of your Jellyseerr instance (e.g., http://192.168.1.100:5055)
+                            Your local Jellyseerr instance URL. This is used when accessing Jellyfin from your local network.
                         </div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtJellyseerrApiKey">
+                            Jellyseerr API Key (Required)
+                        </label>
+                        <input is="emby-input" type="password" id="txtJellyseerrApiKey"
+                               placeholder="Enter your Jellyseerr API key" required />
+                        <div class="fieldDescription">
+                            Find your API key in Jellyseerr under <strong>Settings → General → API Key</strong>.
+                        </div>
+                    </div>
+
+                    <!-- Tailscale Configuration -->
+                    <div class="sectionTitleContainer flex align-items-center" style="margin-top: 2em;">
+                        <h2 class="sectionTitle">Tailscale Configuration (Optional)</h2>
+                    </div>
+                    <div class="fieldDescription" style="margin-bottom: 1.5em;">
+                        Configure Tailscale URLs for remote access. Leave empty if you don't use Tailscale.
+                        These URLs are used by the Android TV app to connect when you're outside your local network.
                     </div>
 
                     <div class="inputContainer">
@@ -30,10 +55,10 @@
                             Tailscale Jellyseerr URL
                         </label>
                         <input is="emby-input" type="text" id="txtTailscaleJellyseerrBase"
-                               placeholder="http://<tailscale-ip>:5055" />
+                               placeholder="http://100.x.y.z:5055" />
                         <div class="fieldDescription">
-                            Optional: A Jellyseerr URL reachable via Tailscale for remote devices (e.g., http://100.x.y.z:5055).
-                            This is returned via <code>/plugins/requests/tailscale/apibase</code>.
+                            Your Jellyseerr Tailscale IP address. Example: <code>http://100.64.0.1:5055</code>
+                            <br>Available via API: <code>GET /plugins/requests/tailscale/apibase</code>
                         </div>
                     </div>
 
@@ -44,25 +69,17 @@
                         <input is="emby-input" type="text" id="txtTailscaleJellyfinBase"
                                placeholder="http://100.99.17.85:8096" />
                         <div class="fieldDescription">
-                            Optional: Your Jellyfin URL reachable via Tailscale for remote devices (e.g., http://100.99.17.85:8096).
-                            This is returned via <code>/plugins/requests/tailscale/jellyfinbase</code>.
+                            Your Jellyfin Tailscale IP address. Example: <code>http://100.64.0.2:8096</code>
+                            <br>Available via API: <code>GET /plugins/requests/tailscale/jellyfinbase</code>
                         </div>
                     </div>
 
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="txtJellyseerrApiKey">
-                            Jellyseerr API Key
-                        </label>
-                        <input is="emby-input" type="password" id="txtJellyseerrApiKey"
-                               placeholder="Enter API key" />
-                        <div class="fieldDescription">
-                            Your Jellyseerr API key. Find it in Jellyseerr under Settings &rarr; General.
-                            The key can be retrieved via <code>/plugins/requests/apikey</code> (for Android TV apps).
-                        </div>
-                    </div>
-
+                    <!-- Performance Settings -->
                     <div class="sectionTitleContainer flex align-items-center" style="margin-top: 2em;">
                         <h2 class="sectionTitle">Performance Settings</h2>
+                    </div>
+                    <div class="fieldDescription" style="margin-bottom: 1.5em;">
+                        Optimize plugin performance for your setup.
                     </div>
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
@@ -71,28 +88,44 @@
                             <span>Disable User Data on Collections</span>
                         </label>
                         <div class="fieldDescription checkboxFieldDescription">
-                            Enable this to fix slow loading of Collections. This disables watch status and progress indicators
-                            for Collections, which significantly improves loading performance. Based on
-                            <a href="https://github.com/pelluch/jellyfin-plugin-disable-user-data" target="_blank">jellyfin-plugin-disable-user-data</a>.
+                            Enable this if Collections are loading slowly. This disables watch status and progress indicators
+                            for Collections, which significantly improves loading performance.
+                            <br>Based on <a href="https://github.com/pelluch/jellyfin-plugin-disable-user-data" target="_blank">jellyfin-plugin-disable-user-data</a>.
                         </div>
                     </div>
 
-                    <div>
+                    <div style="margin-top: 2em;">
                         <button is="emby-button" type="submit" class="raised button-submit block">
-                            <span>Save</span>
+                            <span>Save Settings</span>
                         </button>
                     </div>
                 </form>
 
-                <div class="sectionTitleContainer flex align-items-center" style="margin-top: 2em;">
-                    <h2 class="sectionTitle">API Endpoints</h2>
+                <!-- API Documentation -->
+                <div class="sectionTitleContainer flex align-items-center" style="margin-top: 3em;">
+                    <h2 class="sectionTitle">API Endpoints (For Developers)</h2>
+                </div>
+                <div class="fieldDescription" style="margin-bottom: 1em;">
+                    These endpoints are used by the Android TV app and other integrations to retrieve configuration.
                 </div>
                 <div class="fieldDescription">
-                    <p><strong>Get Jellyseerr Base URL:</strong> <code>GET /plugins/requests/apibase</code></p>
-                    <p><strong>Get Tailscale Jellyseerr URL:</strong> <code>GET /plugins/requests/tailscale/apibase</code></p>
-                    <p><strong>Get Tailscale Jellyfin URL:</strong> <code>GET /plugins/requests/tailscale/jellyfinbase</code></p>
-                    <p><strong>Get API Key:</strong> <code>GET /plugins/requests/apikey</code></p>
-                    <p>These endpoints return the configured URLs and API key. Useful for Android TV app.</p>
+                    <div style="margin-bottom: 1em;">
+                        <strong>Local Network Endpoints:</strong>
+                        <ul style="margin: 0.5em 0 0 1.5em;">
+                            <li><code>GET /plugins/requests/apibase</code> - Returns Jellyseerr URL</li>
+                            <li><code>GET /plugins/requests/apikey</code> - Returns Jellyseerr API Key</li>
+                        </ul>
+                    </div>
+                    <div style="margin-bottom: 1em;">
+                        <strong>Tailscale Endpoints:</strong>
+                        <ul style="margin: 0.5em 0 0 1.5em;">
+                            <li><code>GET /plugins/requests/tailscale/apibase</code> - Returns Tailscale Jellyseerr URL</li>
+                            <li><code>GET /plugins/requests/tailscale/jellyfinbase</code> - Returns Tailscale Jellyfin URL</li>
+                        </ul>
+                    </div>
+                    <p style="margin-top: 1em; font-style: italic;">
+                        All endpoints return JSON with <code>success</code> boolean and the requested data.
+                    </p>
                 </div>
             </div>
         </div>
